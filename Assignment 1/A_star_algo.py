@@ -9,6 +9,7 @@ class mapNode:
         self.connections = infodict["Connections"]
         self.connectionlist = infodict["ConnectionList"]
         self.coords = coord_parse(coordstring)
+        self.parent = None
 
 def mapstring_parse(mapstring):
     #SanJose-SanFrancisco(48.4),Monterey(71.7),Fresno(149),SantaCruz(32.7)
@@ -77,17 +78,40 @@ def a_Star_algo(map, startnode, endnode):
     openlist=[]
     closedlist=[]
 
-    #generates a cost for each city on the map
-    costlist=[]
-    for node in map:
-        costlist.append(1000000)
+    costdict ={}
+    costdict[startnode.cityname]=0
     
-    return
+    
+    #main loop
+    while len(openlist) > 0:
+        for node in openlist:
+            if node.cityname == endnode.cityname:
+                return node
+        currentnode = openlist[0]
+        openlist.remove(currentnode)
+        closedlist.append(currentnode)
+        for connection in currentnode.connectionlist:
+            if connection in closedlist:
+                continue #already been checked, skips 
+            if connection not in openlist:
+                openlist.append(connection) #adds to openlist if not already there
+            newcost = costdict[currentnode.cityname] + currentnode.connections[connection]
+            if connection not in costdict or newcost < costdict[connection]:
+                costdict[connection] = newcost
+                currentnode.cost = newcost
+                currentnode.distance = heuristic(newcost, currentnode.coords, endnode.coords)
+                currentnode.pathlist.append(connection)
+
+    if len(openlist) == 0:
+        print("No path found")
+        return None
+    
+    
 
 
 
 
 def main(startloc, endloc):
     map = generate_map()
-
+    a_Star_algo(map, startloc, endloc)
     return
