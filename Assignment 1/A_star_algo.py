@@ -1,4 +1,5 @@
 import os
+import math
 
 class mapNode:
     def __init__(self, mapstring, coordstring): 
@@ -50,6 +51,15 @@ def generate_map():
         nodelist.append(mapNode(mapstring_list[i], coordstring_list[i]))
     return nodelist
 
+
+#determines a heuristic based on absolute distance of node to goal node, and the current cost of getting there. 
+def heuristic(cost, current_loc, goal_loc):
+    cloc = current_loc.split(",")
+    gloc = goal_loc.split(",")
+    h = abs(math.sqrt(((cloc[0]-gloc[0])**2)+((cloc[1]-gloc[1])**2))) #closeness to goal heuristic
+    f = cost + h
+    return f
+
 class path:
     def __init__(self):
         self.pathlist = []
@@ -63,5 +73,21 @@ class path:
         clone.cost = self.cost
         return clone
 
-def a_Star_algo(startnode, endnode):
+def a_Star_algo(map, startnode, endnode):
+    openlist=[]
+    closedlist=[]
+
+    #generates a cost for each city on the map
+    costlist=[]
+    for node in map:
+        costlist.append(1000000)
+    
+    return
+
+
+
+
+def main(startloc, endloc):
     map = generate_map()
+
+    return
