@@ -109,4 +109,3 @@ def map_check(map):
         print("=====================================")
 
 main("SanJose", "LongBeach")
-
