@@ -11,8 +11,7 @@ class mapNode:
         self.coords = coord_parse(coordstring)
         self.parent = None
         self.pathlist=[]
-        self.cost=0
-        self.distance=0
+
 
 def mapstring_parse(mapstring):
     #SanJose-SanFrancisco(48.4),Monterey(71.7),Fresno(149),SantaCruz(32.7)
