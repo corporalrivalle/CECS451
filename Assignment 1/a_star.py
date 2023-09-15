@@ -93,19 +93,20 @@ def main(startstr, endstring):
             #calculate distance from end node
             node.dfe = haversine(tuple(node.coords.split(",")), tuple(end.coords.split(",")))
 
-
-    map_check(map)
     print("Start node: "+start.cityname)
     print("End node: "+end.cityname)
+    map_check(map)
 
 #testing functions
 def map_check(map):
     for node in map:
-        print("City name:",node.cityname)
-        print("Connections:",node.connections)
-        print("Connection list:",node.connectionlist)
-        print("Coordinates:",node.coords)
-        print("Distance:",node.dfe)
+        # print("City name:",node.cityname)
+        # print("Connections:",node.connections)
+        # print("Connection list:",node.connectionlist)
+        # print("Coordinates:",node.coords)
+        # print("Distance:",node.dfe)
+        print("City name:",node.cityname,"Distance:",node.dfe)
         print("=====================================")
 
 main("SanJose", "LongBeach")
+main("Eureka", "LongBeach")
