@@ -2,6 +2,8 @@ from board import Board
 import time
 import numpy as np
 
+#Derek Zhang, 026225028
+
 #general idea is as follows
 #1. on each queen, find all possible moves
 #2. for each move, find whether alpha (number of queens attacking) decreases

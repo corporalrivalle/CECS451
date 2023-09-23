@@ -1,6 +1,8 @@
 import random
 from board import Board
 import time
+
+#Derek Zhang, 026225028
 class gBoard: #A board's genetic representation
     def __init__(self, board_size):
         self.board = Board(board_size)
