@@ -1,52 +1,48 @@
-import random
+# Define the conditional probabilities from the Bayesian network
+prob_c = 0.5  # P(C=true)
+prob_s_given_c = 0.1  # P(S=true|C)
+prob_r_given_c = 0.8  # P(R=true|C)
 
-# Define conditional probability tables (CPTs) from Figure 1
-P_C = {"t": 0.5, "f": 0.5}
-P_S_given_C = {"t": {"t": 0.1, "f": 0.5}, "f": {"t": 0.5, "f": 0.5}}
-P_R_given_C = {"t": {"t": 0.8, "f": 0.2}, "f": {"t": 0.2, "f": 0.8}}
-P_W_given_S_R = {"t": {"t": {"t": 0.99, "f": 0.9}, "f": {"t": 0.95, "f": 0.05}},
-                "f": {"t": {"t": 0.9, "f": 0.05}, "f": {"t": 0.95, "f": 0.99}}}
+prob_not_s_given_not_c = 0.5  # P(¬S=true|¬C)
+prob_r_given_not_c = 0.2  # P(R=true|¬C)
 
-# Initialize states for C, S, R, W
-states = [{"C": "t", "S": "t", "R": "t", "W": "t"} for _ in range(1000)]
+# Transition probabilities based on state changes
+def transition_probability(current_state, next_state):
+    # If Cloudy changes state
+    if current_state[0] != next_state[0]:
+        return prob_c if next_state[0] else (1 - prob_c)
+    # If Rain changes state and it's currently Cloudy
+    elif current_state[1] != next_state[1] and current_state[0]:
+        return prob_r_given_c if next_state[1] else (1 - prob_r_given_c)
+    # If Rain changes state and it's currently not Cloudy
+    elif current_state[1] != next_state[1] and not current_state[0]:
+        return prob_r_given_not_c if next_state[1] else (1 - prob_r_given_not_c)
+    # No change in state
+    else:
+        return 0
 
-def proposal(state):
-    """ Generate a new proposal state """
-    new_state = state.copy()
-    flip = random.choice(["C", "S", "R", "W"])
-    new_state[flip] = "t" if new_state[flip] == "f" else "f"
-    return new_state
+# Define the states
+states = [
+    (True, True, False, True),   # S1: C, R, ~S, W
+    (True, False, False, True),  # S2: C, ~R, ~S, W
+    (False, True, False, True),  # S3: ~C, R, ~S, W
+    (False, False, False, True)  # S4: ~C, ~R, ~S, W
+]
 
-def acceptance_prob(old_state, new_state):
-    """ Calculate acceptance probability """
-    old_prob = P_C[old_state["C"]] * \
-               P_S_given_C[old_state["C"]][old_state["S"]] * \
-               P_R_given_C[old_state["C"]][old_state["R"]] * \
-               P_W_given_S_R[old_state["S"]][old_state["R"]][old_state["W"]]
-    
-    new_prob = P_C[new_state["C"]] * \
-               P_S_given_C[new_state["C"]][new_state["S"]] * \
-               P_R_given_C[new_state["C"]][new_state["R"]] * \
-               P_W_given_S_R[new_state["S"]][new_state["R"]][new_state["W"]]
-    
-    return min(1, new_prob/old_prob)
+# Initialize the transition matrix
+Q = [[0 for _ in range(4)] for _ in range(4)]
 
-# MCMC sampling
-samples = []
-current_state = {"C": "t", "S": "t", "R": "t", "W": "t"}
-for _ in range(1000000):
-    proposed_state = proposal(current_state)
-    alpha = acceptance_prob(current_state, proposed_state)
-    if random.uniform(0, 1) < alpha:
-        current_state = proposed_state
-    samples.append(current_state)
+# Populate the transition matrix
+for i, state_from in enumerate(states):
+    for j, state_to in enumerate(states):
+        Q[i][j] = transition_probability(state_from, state_to)
 
-# Compute estimates for the desired queries
-def estimate_prob(query):
-    count = sum(1 for s in samples if all(s[var] == val for var, val in query.items()))
-    return count / len(samples)
+    # Adjust probabilities so they sum to 1 for each row
+    row_sum = sum(Q[i])
+    if row_sum != 1:
+        # Assume the remainder of the probability is the probability of staying in the same state
+        Q[i][i] += 1 - row_sum
 
-print("P(C|S=r):", estimate_prob({"S": "r"}))
-print("P(C|S=t):", estimate_prob({"S": "t"}))
-print("P(R|C=t, S=w):", estimate_prob({"C": "t", "S": "w"}))
-print("P(R|C=f, S=w):", estimate_prob({"C": "f", "S": "w"}))
+# Print the transition matrix Q
+for row in Q:
+    print(' '.join('{:.4f}'.format(p) for p in row))
